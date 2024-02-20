@@ -7,15 +7,17 @@ async function addUser(req, res) {
   const {
     email, username, password, role, fullname, identity_type, identity_number, address,
   } = req.body;
+  const userId = `user-${nanoid(10)}`;
+  const profileId = `profile-${nanoid(10)}`;
   const payload = {
-    id: `user-${nanoid(10)}`,
+    id: userId,
     username,
     email,
     password,
     role,
     profiles: {
       create: {
-        id: `profile-${nanoid(10)}`,
+        id: profileId,
         fullname,
         identity_type,
         identity_number,

@@ -7,8 +7,9 @@ async function addAccount(req, res) {
   const {
     account_number, user_id, balance, status,
   } = req.body;
+  const accountId = `acc-${nanoid(10)}`;
   const payload = {
-    id: `acc-${nanoid(10)}`,
+    id: accountId,
     account_number,
     user_id,
     balance,

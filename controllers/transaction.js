@@ -7,8 +7,9 @@ async function addTransaction(req, res) {
   const {
     amount, source_account_number, destination_account_number,
   } = req.body;
+  const transactionId = `trx-${nanoid(10)}`;
   const payload = {
-    id: `trx-${nanoid(10)}`,
+    id: transactionId,
     amount: parseFloat(amount),
     source_account_number,
     destination_account_number,
