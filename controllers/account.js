@@ -1,5 +1,5 @@
 const { PrismaClient } = require('@prisma/client');
-const nanoid = require('nanoid');
+const { nanoid } = require('nanoid');
 const { ResponseTemplate } = require('../utils/ResponseTemplate');
 const prisma = new PrismaClient();
 
@@ -70,7 +70,7 @@ async function getAccountbyId(req, res) {
   const { id } = req.params;
 
   try {
-    const acc = prisma.accounts.findUnique({
+    const acc = await prisma.accounts.findUnique({
       where: {
         id,
       },
