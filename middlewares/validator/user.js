@@ -7,7 +7,7 @@ function validateUser(req, res, next) {
     username: Joi.string().alphanum().min(5).max(25)
       .required(),
     password: Joi.string().pattern(/^[a-zA-Z0-9]{5,30}$/).required(),
-    role: Joi.string().valid('admin', 'user'),
+    role: Joi.string().valid('admin', 'staff', 'user'),
     fullname: Joi.string().required(),
     identity_type: Joi.string().valid('identity_card', 'driver_license', 'other'),
     identity_number: Joi.string().required(),
