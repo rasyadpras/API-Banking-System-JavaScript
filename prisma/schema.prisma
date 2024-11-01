@@ -10,66 +10,168 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  admin
-  staff
-  user
+enum Roles {
+  administrator
+  officer
+  customer
 }
 
-enum Status {
+enum BankAccountStatus {
   active
   closed
 }
 
-enum Identity {
+enum IdentityType {
   identity_card
+  passport
   driver_license
+  student_card
   other
 }
 
+enum Gender {
+  male
+  female
+}
+
+enum AccountUserStatus {
+  active
+  not_verified
+  locked
+}
+
+enum TransactionCashType {
+  deposit
+  withdrawal
+}
+
+enum BankAccountType {
+  regular_savings
+  business_savings
+  students_savings
+  savings_plan
+  other_savings
+}
+
+enum CardType {
+  credit_card
+  debit_card
+}
+
+enum CardPrincipal {
+  visa
+  mastercard
+  gpn
+  jcb
+  union_pay
+  american_express
+  no_principal
+  other
+}
+
+enum CardStatus {
+  active
+  blocked
+  expired
+}
+
 model users {
-  id            String     @id @unique
-  email         String     @unique
-  username      String     @unique
-  password      String
-  role          Role       @default(user)
-  created_at    DateTime   @default(now())
-  updated_at    DateTime?  @updatedAt
-  profiles      profiles?
-  bank_accounts accounts[]
+  id             String            @id @unique @default(uuid()) @db.Uuid
+  email          String            @unique
+  password       String
+  roles           roles[]           @relation("UserRoles")
+  status_account AccountUserStatus @default(not_verified)
+  profile_id     String            @unique
+  login_attempt  Int               @default(0)
+  is_unlocked    Boolean           @default(true)
+  is_verified    Boolean           @default(false)
+  created_at     DateTime          @default(now())
+  updated_at     DateTime?         @updatedAt
+  profile        profiles          @relation(fields: [profile_id], references: [id])
 }
 
 model profiles {
-  id              String    @id @unique
-  user_id         String    @unique
-  fullname        String
-  identity_type   Identity  @default(identity_card)
-  identity_number String    @unique
-  address         String    @db.Text
-  created_at      DateTime  @default(now())
-  updated_at      DateTime? @updatedAt
-  user            users     @relation(fields: [user_id], references: [id])
+  id              String          @id @unique @default(uuid()) @db.Uuid
+  full_name       String
+  gender          Gender
+  birth_date      DateTime        @db.Date
+  identity_type   IdentityType
+  identity_number String          @unique
+  address         String          @db.Text
+  city            String
+  province        String
+  country         String
+  phone_number    String
+  created_at      DateTime        @default(now())
+  updated_at      DateTime?       @updatedAt
+  user            users?
+  bank_accounts   bank_accounts[]
 }
 
-model accounts {
-  id               String         @id @unique
-  account_number   String         @unique
-  user_id          String
-  balance          Float          @db.DoublePrecision
-  status           Status         @default(active)
-  created_at       DateTime       @default(now())
-  updated_at       DateTime?      @updatedAt
-  user             users          @relation(fields: [user_id], references: [id])
-  transaction_from transactions[] @relation("TransactionFrom")
-  transaction_to   transactions[] @relation("TransactionTo")
+model roles {
+  id   String  @id @unique @default(uuid()) @db.Uuid
+  role Roles   @default(customer)
+  user users[] @relation("UserRoles")
 }
 
-model transactions {
-  id                          String    @id @unique
-  amount                      Float     @db.DoublePrecision
-  source_account_number       String
-  destination_account_number  String
-  transaction_date            DateTime  @default(now())
-  from_account                accounts  @relation("TransactionFrom", fields: [source_account_number], references: [account_number])
-  to_account                  accounts  @relation("TransactionTo", fields: [destination_account_number], references: [account_number])
+model bank_branches {
+  id            String          @id @unique @default(uuid()) @db.Uuid
+  branch_code   String          @unique @db.VarChar(3)
+  branch_name   String
+  region        String
+  address       String
+  created_at    DateTime        @default(now())
+  updated_at    DateTime?       @updatedAt
+  bank_accounts bank_accounts[]
+}
+
+model bank_accounts {
+  id                  String                  @id @unique @default(uuid()) @db.Uuid
+  branch_id           String
+  profile_id          String
+  account_number      String                  @unique @db.VarChar(10)
+  bank_account_type   BankAccountType
+  balance             Float                   @db.DoublePrecision
+  status_bank_account BankAccountStatus       @default(active)
+  created_at          DateTime                @default(now())
+  updated_at          DateTime?               @updatedAt
+  branch              bank_branches           @relation(fields: [branch_id], references: [id])
+  profile             profiles                @relation(fields: [profile_id], references: [id])
+  transfer_from       transfer_transactions[] @relation("TransferFrom")
+  transfer_to         transfer_transactions[] @relation("TransferTo")
+  cash_transactions   cash_transactions[]     @relation("CashTransaction")
+  cards               cards[]
+}
+
+model cards {
+  id              String        @id @unique @default(uuid()) @db.Uuid
+  bank_account_id String
+  card_type       CardType
+  card_number     String        @unique @db.VarChar(16)
+  principal       CardPrincipal
+  expired_date    DateTime      @db.Date
+  cvv             String        @db.VarChar(4)
+  card_status     CardStatus    @default(active)
+  active_date     DateTime      @default(now())
+  updated_at      DateTime?     @updatedAt
+  bank_account    bank_accounts @relation(fields: [bank_account_id], references: [id])
+}
+
+model transfer_transactions {
+  id                     String        @id @unique @default(uuid()) @db.Uuid
+  source_account_id      String
+  destination_account_id String
+  amount                 Float         @db.DoublePrecision
+  transaction_date       DateTime      @default(now())
+  from_account           bank_accounts @relation("TransferFrom", fields: [source_account_id], references: [id])
+  to_account             bank_accounts @relation("TransferTo", fields: [destination_account_id], references: [id])
+}
+
+model cash_transactions {
+  id               String              @id @unique @default(uuid()) @db.Uuid
+  bank_account_id  String
+  transaction_type TransactionCashType
+  amount           Float               @db.DoublePrecision
+  transaction_date DateTime            @default(now())
+  bank_account     bank_accounts       @relation("CashTransaction", fields: [bank_account_id], references: [id])
 }
