@@ -29,11 +29,11 @@ async function registerService(registerReq) {
 
     const hashPass = await bcrypt.hash(password, 10);
 
-    const customerRole = await prisma.roles.findUnique({ where: { role: "customer" } });
+    const customerRole = await prisma.roles.findUnique({ where: { role: Roles.customer } });
     if (!customerRole) {
         await prisma.roles.create({
             data: {
-                role: Roles.administrator
+                role: Roles.customer,
             }
         });
     }
@@ -84,7 +84,14 @@ async function loginService(loginReq) {
         throw new ResponseError(401, "Unauthorized", "Password is incorrect");
     }
 
-    const token = jwt.sign({ email: user.email, user_id: user.user_id }, process.env.SECRET_KEY);
+    const token = jwt.sign(
+        { email: user.email, user_id: user.user_id },
+        process.env.JWT_SECRET_KEY,
+        {
+            issuer: process.env.JWT_ISSUER,
+            expiresIn: process.env.JWT_EXPIRES_IN,
+        }
+    );
     const data = prisma.users.findUnique({
         where: { email },
         select: {

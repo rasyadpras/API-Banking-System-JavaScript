@@ -2,11 +2,11 @@
   "name": "banking-api-javascript",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "fix": "eslint . --fix",
-    "dev": "nodemon index.js",
+    "dev": "nodemon app.js",
     "format": "prisma format"
   },
   "author": "@rasyadpras",

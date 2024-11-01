@@ -79,15 +79,15 @@ model users {
   id             String            @id @unique @default(uuid()) @db.Uuid
   email          String            @unique
   password       String
-  roles           roles[]           @relation("UserRoles")
+  roles          roles[]           @relation("UserRoles")
   status_account AccountUserStatus @default(not_verified)
-  profile_id     String            @unique
+  profile_id     String?           @unique
   login_attempt  Int               @default(0)
   is_unlocked    Boolean           @default(true)
   is_verified    Boolean           @default(false)
   created_at     DateTime          @default(now())
   updated_at     DateTime?         @updatedAt
-  profile        profiles          @relation(fields: [profile_id], references: [id])
+  profile        profiles?         @relation(fields: [profile_id], references: [id])
 }
 
 model profiles {
