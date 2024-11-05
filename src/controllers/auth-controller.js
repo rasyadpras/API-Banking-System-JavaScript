@@ -13,9 +13,8 @@ const AddRoleRequest = require("../dto/add-role");
 const ForgotPasswordRequest = require("../dto/forgot-password");
 const ResetPasswordRequest = require("../dto/reset-password");
 const ResponseSuccess = require("../responses/response-success");
-const ResponseError = require("../responses/response-error");
 
-async function register(req, res) {
+async function register(req, res, next) {
     try {
         const registerReq = new RegisterRequest(
             req.body.email,
@@ -37,43 +36,31 @@ async function register(req, res) {
             201,
             "Created",
             {
-                userId: user.id,
+                user_id: user.id,
                 email: user.email,
-                roles: user.roles.map(r => r.role),
+                roles: user.roles,
                 profile: {
-                    profileId: user.profile.id,
-                    fullName: user.profile.full_name,
+                    profile_id: user.profile.id,
+                    full_name: user.profile.full_name,
                     gender: user.profile.gender,
-                    birthDate: user.profile.birth_date,
-                    identityType: user.profile.identity_type,
-                    identityNumber: user.profile.identity_number,
+                    birth_date: user.profile.birth_date,
+                    identity_type: user.profile.identity_type,
+                    identity_number: user.profile.identity_number,
                     address: user.profile.address,
                     city: user.profile.city,
                     province: user.profile.province,
                     country: user.profile.country,
-                    phoneNumber: user.profile.phone_number
+                    phone_number: user.profile.phone_number
                 }
             }
         );
         return res.status(201).json(resp);
     } catch (e) {
-        if (e instanceof ResponseError) {
-            return res.status(e.status).json({
-                statusCode: e.status,
-                message: e.message,
-                error: e.error
-            });
-        } else {
-            return res.status(500).json({
-                statusCode: 500,
-                message: "Internal Server Error",
-                error: e.message
-            });
-        }
+        next(e);
     }
 }
 
-async function login(req, res) {
+async function login(req, res, next) {
     try {
         const loginReq = new LoginRequest(
             req.body.email,
@@ -92,23 +79,11 @@ async function login(req, res) {
         );
         return res.status(200).json(resp);
     } catch (e) {
-        if (e instanceof ResponseError) {
-            return res.status(e.status).json({
-                statusCode: e.status,
-                message: e.message,
-                error: e.error
-            });
-        } else {
-            return res.status(500).json({
-                statusCode: 500,
-                message: "Internal Server Error",
-                error: e.message
-            });
-        }
+        next(e);
     }
 }
 
-async function addRole(req, res) {
+async function addRole(req, res, next) {
     try {
         const { id } = req.params;
         const addRoleReq = new AddRoleRequest(
@@ -125,40 +100,28 @@ async function addRole(req, res) {
                 roles: user.roles.map(r => r.role),
                 status: user.status_account,
                 profile: {
-                    profileId: user.profile.id,
-                    fullName: user.profile.full_name,
-                    gender: user.profile.gender,
+                    profile_id: user.profile.id,
+                    full_name: user.profile.full_name,
+                    gender: user.profile.gender
                 },
-                createdAt: user.created_at,
-                updatedAt: user.updated_at
+                created_at: user.created_at,
+                updated_at: user.updated_at
             }
         );
         return res.status(200).json(resp);
     } catch (e) {
-        if (e instanceof ResponseError) {
-            return res.status(e.status).json({
-                statusCode: e.status,
-                message: e.message,
-                error: e.error
-            });
-        } else {
-            return res.status(500).json({
-                statusCode: 500,
-                message: "Internal Server Error",
-                error: e.message
-            });
-        }
+        next(e);
     }
 }
 
-async function forgotPassword(req, res) {
+async function forgotPassword(req, res, next) {
     try {
         const { id } = req.params;
-        const { password } = new ForgotPasswordRequest(
+        const forgotPasswordReq = new ForgotPasswordRequest(
             req.body.password
         );
 
-        await forgotPasswordService(id, password);
+        await forgotPasswordService(id, forgotPasswordReq);
         const resp = new ResponseSuccess(
             200,
             "OK",
@@ -166,23 +129,11 @@ async function forgotPassword(req, res) {
         );
         return res.status(200).json(resp);
     } catch (e) {
-        if (e instanceof ResponseError) {
-            return res.status(e.status).json({
-                statusCode: e.status,
-                message: e.message,
-                error: e.error
-            });
-        } else {
-            return res.status(500).json({
-                statusCode: 500,
-                message: "Internal Server Error",
-                error: e.message
-            });
-        }
+        next(e);
     }
 }
 
-async function resetPassword(req, res) {
+async function resetPassword(req, res, next) {
     try {
         const { id } = req.params;
         const resetPasswordReq = new ResetPasswordRequest(
@@ -198,23 +149,11 @@ async function resetPassword(req, res) {
         );
         return res.status(200).json(resp);
     } catch (e) {
-        if (e instanceof ResponseError) {
-            return res.status(e.status).json({
-                statusCode: e.status,
-                message: e.message,
-                error: e.error
-            });
-        } else {
-            return res.status(500).json({
-                statusCode: 500,
-                message: "Internal Server Error",
-                error: e.message
-            });
-        }
+        next(e);
     }
 }
 
-async function verifyAccount(req, res) {
+async function verifyAccount(req, res, next) {
     try {
         const { id } = req.params;
         await verifyAccountService(id);
@@ -225,23 +164,11 @@ async function verifyAccount(req, res) {
         );
         return res.status(200).json(resp);
     } catch (e) {
-        if (e instanceof ResponseError) {
-            return res.status(e.status).json({
-                statusCode: e.status,
-                message: e.message,
-                error: e.error
-            });
-        } else {
-            return res.status(500).json({
-                statusCode: 500,
-                message: "Internal Server Error",
-                error: e.message
-            });
-        }
+        next(e);
     }
 }
 
-async function unlockAccount(req, res) {
+async function unlockAccount(req, res, next) {
     try {
         const { id } = req.params;
         await unlockAccountService(id);
@@ -252,19 +179,7 @@ async function unlockAccount(req, res) {
         );
         return res.status(200).json(resp);
     } catch (e) {
-        if (e instanceof ResponseError) {
-            return res.status(e.status).json({
-                statusCode: e.status,
-                message: e.message,
-                error: e.error
-            });
-        } else {
-            return res.status(500).json({
-                statusCode: 500,
-                message: "Internal Server Error",
-                error: e.message
-            });
-        }
+        next(e);
     }
 }
 

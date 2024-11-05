@@ -5,9 +5,8 @@ const {
 } = require("../services/bank-account-service");
 const CreateBankAccountRequest = require("../dto/create-bank-account");
 const ResponseSuccess = require("../responses/response-success");
-const ResponseError = require("../responses/response-error");
 
-async function createBankAccount(req, res) {
+async function createBankAccount(req, res, next) {
     try {
         const createBankAccountReq = new CreateBankAccountRequest(
             req.body.branch_id,
@@ -22,44 +21,44 @@ async function createBankAccount(req, res) {
             {
                 id: bankAccount.id,
                 branch: {
-                    branchId: bankAccount.branch.id,
+                    branch_id: bankAccount.branch.id,
                     code: bankAccount.branch.branch_code,
-                    branchName: bankAccount.branch.branch_name,
+                    branch_name: bankAccount.branch.branch_name,
                     region: bankAccount.branch.region,
                     address: bankAccount.branch.address,
                 },
                 profile: {
-                    profileId: bankAccount.profile.id,
-                    fullName: bankAccount.profile.full_name,
+                    profile_id: bankAccount.profile.id,
+                    full_name: bankAccount.profile.full_name,
                     gender: bankAccount.profile.gender,
-                    birthDate: bankAccount.profile.birth_date,
-                    identityType: bankAccount.profile.identity_type,
-                    identityNumber: bankAccount.profile.identity_number,
+                    birth_date: bankAccount.profile.birth_date,
+                    identity_type: bankAccount.profile.identity_type,
+                    identity_number: bankAccount.profile.identity_number,
                     address: bankAccount.profile.address,
                     city: bankAccount.profile.city,
                     province: bankAccount.profile.province,
                     country: bankAccount.profile.country,
-                    phoneNumber: bankAccount.profile.phone_number,
+                    phone_number: bankAccount.profile.phone_number,
                     user: {
-                        userId: bankAccount.profile.user.id,
+                        user_id: bankAccount.profile.user.id,
                         email: bankAccount.profile.user.email,
-                        createdAt: bankAccount.profile.user.created_at,
-                        updatedAt: bankAccount.profile.user.updated_at,
+                        created_at: bankAccount.profile.user.created_at,
+                        updated_at: bankAccount.profile.user.updated_at,
                     },
                     created_at: bankAccount.profile.created_at,
                     updated_at: bankAccount.profile.updated_at,
                 },
-                accountNumber: bankAccount.account_number,
-                bankAccountType: bankAccount.bank_account_type,
+                account_number: bankAccount.account_number,
+                bank_account_type: bankAccount.bank_account_type,
                 balance: bankAccount.balance,
-                statusBankAccount: bankAccount.status_bank_account,
+                status_bank_account: bankAccount.status_bank_account,
                 cards: bankAccount.cards.map(card => ({
-                    cardId: card.id,
-                    cardType: card.card_type,
-                    cardNumber: card.card_number,
+                    card_id: card.id,
+                    card_type: card.card_type,
+                    card_number: card.card_number,
                     principal: card.principal,
-                    validThru: card.expired_date,
-                    cardStatus: card.status_card,
+                    valid_thru: card.expired_date,
+                    card_status: card.card_status,
                 })),
                 created_at: bankAccount.created_at,
                 updated_at: bankAccount.updated_at,
@@ -67,23 +66,11 @@ async function createBankAccount(req, res) {
         );
         return res.status(201).json(resp);
     } catch (e) {
-        if (e instanceof ResponseError) {
-            return res.status(e.status).json({
-                statusCode: e.status,
-                message: e.message,
-                error: e.error
-            });
-        } else {
-            return res.status(500).json({
-                statusCode: 500,
-                message: "Internal Server Error",
-                error: e.message
-            });
-        }
+        next(e);
     }
 }
 
-async function getBankAccountById(req, res) {
+async function getBankAccountById(req, res, next) {
     try {
         const { id } = req.params;
         const bankAccount = await getBankAccountByIdService(id);
@@ -93,44 +80,44 @@ async function getBankAccountById(req, res) {
             {
                 id: bankAccount.id,
                 branch: {
-                    branchId: bankAccount.branch.id,
+                    branch_id: bankAccount.branch.id,
                     code: bankAccount.branch.branch_code,
-                    branchName: bankAccount.branch.branch_name,
+                    branch_name: bankAccount.branch.branch_name,
                     region: bankAccount.branch.region,
                     address: bankAccount.branch.address,
                 },
                 profile: {
-                    profileId: bankAccount.profile.id,
-                    fullName: bankAccount.profile.full_name,
+                    profile_id: bankAccount.profile.id,
+                    full_name: bankAccount.profile.full_name,
                     gender: bankAccount.profile.gender,
-                    birthDate: bankAccount.profile.birth_date,
-                    identityType: bankAccount.profile.identity_type,
-                    identityNumber: bankAccount.profile.identity_number,
+                    birth_date: bankAccount.profile.birth_date,
+                    identity_type: bankAccount.profile.identity_type,
+                    identity_number: bankAccount.profile.identity_number,
                     address: bankAccount.profile.address,
                     city: bankAccount.profile.city,
                     province: bankAccount.profile.province,
                     country: bankAccount.profile.country,
-                    phoneNumber: bankAccount.profile.phone_number,
+                    phone_number: bankAccount.profile.phone_number,
                     user: {
-                        userId: bankAccount.profile.user.id,
+                        user_id: bankAccount.profile.user.id,
                         email: bankAccount.profile.user.email,
-                        createdAt: bankAccount.profile.user.created_at,
-                        updatedAt: bankAccount.profile.user.updated_at,
+                        created_at: bankAccount.profile.user.created_at,
+                        updated_at: bankAccount.profile.user.updated_at,
                     },
                     created_at: bankAccount.profile.created_at,
                     updated_at: bankAccount.profile.updated_at,
                 },
-                accountNumber: bankAccount.account_number,
-                bankAccountType: bankAccount.bank_account_type,
+                account_number: bankAccount.account_number,
+                bank_account_type: bankAccount.bank_account_type,
                 balance: bankAccount.balance,
-                statusBankAccount: bankAccount.status_bank_account,
+                status_bank_account: bankAccount.status_bank_account,
                 cards: bankAccount.cards.map(card => ({
-                    cardId: card.id,
-                    cardType: card.card_type,
-                    cardNumber: card.card_number,
+                    card_id: card.id,
+                    card_type: card.card_type,
+                    card_number: card.card_number,
                     principal: card.principal,
-                    validThru: card.expired_date,
-                    cardStatus: card.status_card,
+                    valid_thru: card.expired_date,
+                    card_status: card.card_status,
                 })),
                 created_at: bankAccount.created_at,
                 updated_at: bankAccount.updated_at,
@@ -138,23 +125,11 @@ async function getBankAccountById(req, res) {
         );
         return res.status(200).json(resp);
     } catch (e) {
-        if (e instanceof ResponseError) {
-            return res.status(e.status).json({
-                statusCode: e.status,
-                message: e.message,
-                error: e.error
-            });
-        } else {
-            return res.status(500).json({
-                statusCode: 500,
-                message: "Internal Server Error",
-                error: e.message
-            });
-        }
+        next(e);
     }
 }
 
-async function deleteBankAccount(req, res) {
+async function deleteBankAccount(req, res, next) {
     try {
         const { id } = req.params;
         await deleteBankAccountService(id);
@@ -165,19 +140,7 @@ async function deleteBankAccount(req, res) {
         );
         return res.status(200).json(resp);
     } catch (e) {
-        if (e instanceof ResponseError) {
-            return res.status(e.status).json({
-                statusCode: e.status,
-                message: e.message,
-                error: e.error
-            });
-        } else {
-            return res.status(500).json({
-                statusCode: 500,
-                message: "Internal Server Error",
-                error: e.message
-            });
-        }
+        next(e);
     }
 }
 

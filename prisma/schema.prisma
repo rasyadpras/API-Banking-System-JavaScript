@@ -81,10 +81,8 @@ model users {
   password       String
   roles          roles[]           @relation("UserRoles")
   status_account AccountUserStatus @default(not_verified)
-  profile_id     String?           @unique
+  profile_id     String?           @unique @db.Uuid
   login_attempt  Int               @default(0)
-  is_unlocked    Boolean           @default(true)
-  is_verified    Boolean           @default(false)
   created_at     DateTime          @default(now())
   updated_at     DateTime?         @updatedAt
   profile        profiles?         @relation(fields: [profile_id], references: [id])
@@ -110,7 +108,7 @@ model profiles {
 
 model roles {
   id   String  @id @unique @default(uuid()) @db.Uuid
-  role Roles   @default(customer)
+  role Roles   @unique
   user users[] @relation("UserRoles")
 }
 
@@ -127,8 +125,8 @@ model bank_branches {
 
 model bank_accounts {
   id                  String                  @id @unique @default(uuid()) @db.Uuid
-  branch_id           String
-  profile_id          String
+  branch_id           String                  @db.Uuid
+  profile_id          String                  @db.Uuid
   account_number      String                  @unique @db.VarChar(10)
   bank_account_type   BankAccountType
   balance             Float                   @db.DoublePrecision
@@ -145,9 +143,9 @@ model bank_accounts {
 
 model cards {
   id              String        @id @unique @default(uuid()) @db.Uuid
-  bank_account_id String
+  bank_account_id String        @db.Uuid
   card_type       CardType
-  card_number     String        @unique @db.VarChar(16)
+  card_number     String        @unique @db.VarChar(19)
   principal       CardPrincipal
   expired_date    DateTime      @db.Date
   cvv             String        @db.VarChar(4)
@@ -159,8 +157,8 @@ model cards {
 
 model transfer_transactions {
   id                     String        @id @unique @default(uuid()) @db.Uuid
-  source_account_id      String
-  destination_account_id String
+  source_account_id      String        @db.Uuid
+  destination_account_id String        @db.Uuid
   amount                 Float         @db.DoublePrecision
   transaction_date       DateTime      @default(now())
   from_account           bank_accounts @relation("TransferFrom", fields: [source_account_id], references: [id])
@@ -169,7 +167,7 @@ model transfer_transactions {
 
 model cash_transactions {
   id               String              @id @unique @default(uuid()) @db.Uuid
-  bank_account_id  String
+  bank_account_id  String              @db.Uuid
   transaction_type TransactionCashType
   amount           Float               @db.DoublePrecision
   transaction_date DateTime            @default(now())

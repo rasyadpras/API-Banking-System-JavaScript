@@ -6,7 +6,7 @@ function validateUpdateProfile(req, res, next) {
         full_name: Joi.string().required(),
         gender: Joi.string().valid("male", "female").required(),
         birth_date: Joi.string().pattern(/^\d{4}-\d{2}-\d{2}$/).required(),
-        identity_type: Joi.string().valid("identity_card", "passport", "driver_license", "students_card", "other").required(),
+        identity_type: Joi.string().valid("ktp", "id card", "passport", "driver license", "student card", "other").required(),
         identity_number: Joi.string().required(),
         address: Joi.string().required(),
         city: Joi.string().required(),

@@ -8,7 +8,7 @@ function inputGender(gender) {
     case "female":
         return Gender.female;
     default:
-        throw new ResponseError(400, "Bad Request", "Value of gender must be 'male' or 'female'");
+        throw new ResponseError(400, "Bad Request");
     }
 }
 
@@ -26,7 +26,7 @@ function inputIdentityType(identity_type) {
     case "other":
         return IdentityType.other;
     default:
-        throw new ResponseError(400, "Bad Request", "Valid value is 'id card', 'ktp', 'passport', 'driver license', 'student card', or 'other'");
+        throw new ResponseError(400, "Bad Request");
     }
 }
 
@@ -43,9 +43,7 @@ function inputBankAccountType(type) {
     case "other":
         return BankAccountType.other_savings;
     default:
-        throw new ResponseError(
-            400, "Bad Request", "Bank account type must be 'regular', 'business', 'student', 'plan', or 'other'"
-        );
+        throw new ResponseError(400, "Bad Request");
     }
 }
 
@@ -56,7 +54,7 @@ function inputCardType(type) {
     case "credit":
         return CardType.credit_card;
     default:
-        throw new ResponseError(400, "Bad Request", "Card type must be 'debit' or 'credit'");
+        throw new ResponseError(400, "Bad Request");
     }
 }
 
@@ -79,7 +77,7 @@ function inputCardPrincipal(principal) {
     case "other":
         return CardPrincipal.other;
     default:
-        throw new ResponseError(400, "Bad Request", "Card principal must be 'visa', 'mastercard', 'gpn', 'jcb', 'union', 'amex', 'none', or 'other'");
+        throw new ResponseError(400, "Bad Request");
     }
 }
 

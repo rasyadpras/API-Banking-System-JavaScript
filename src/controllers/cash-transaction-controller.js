@@ -6,99 +6,74 @@ const {
 } = require("../services/cash-transaction-services");
 const CreateCashTransactionRequest = require("../dto/create-cash-transaction");
 const ResponseSuccess = require("../responses/response-success");
-const ResponseError = require("../responses/response-error");
 
-function createDeposit(req, res) {
+async function createDeposit(req, res, next) {
     try {
         const createCashTransactionReq = new CreateCashTransactionRequest(
             req.body.account_number,
             req.body.amount
         );
 
-        const cashTrx = createDepositTransactionService(createCashTransactionReq);
+        const cashTrx = await createDepositTransactionService(createCashTransactionReq);
         const resp = new ResponseSuccess(
             201,
             "Created",
             {
                 id: cashTrx.id,
-                bankAccount: {
-                    accountId: cashTrx.bank_account.id,
+                bank_account: {
+                    account_id: cashTrx.bank_account.id,
                     profile: {
-                        profileId: cashTrx.bank_account.profile.id,
-                        fullName: cashTrx.bank_account.profile.full_name,
+                        profile_id: cashTrx.bank_account.profile.id,
+                        full_name: cashTrx.bank_account.profile.full_name,
                     },
-                    accountNumber: cashTrx.bank_account.account_number,
-                    bankAccountType: cashTrx.bank_account.bank_account_type,
+                    account_number: cashTrx.bank_account.account_number,
+                    bank_account_type: cashTrx.bank_account.bank_account_type,
                 },
-                transactionType: cashTrx.transaction_type,
+                transaction_type: cashTrx.transaction_type,
                 amount: cashTrx.amount,
-                transactionDate: cashTrx.transaction_date,
+                transaction_date: cashTrx.transaction_date,
             }
         );
         return res.status(201).json(resp);
     } catch (e) {
-        if (e instanceof ResponseError) {
-            return res.status(e.status).json({
-                statusCode: e.status,
-                message: e.message,
-                error: e.error
-            });
-        } else {
-            return res.status(500).json({
-                statusCode: 500,
-                message: "Internal Server Error",
-                error: e.message
-            });
-        }
+        next(e);
     }
 }
 
-function createWithdrawal(req, res) {
+async function createWithdrawal(req, res, next) {
     try {
         const createCashTransactionReq = new CreateCashTransactionRequest(
             req.body.account_number,
             req.body.amount
         );
 
-        const cashTrx = createWithdrawalTransactionService(createCashTransactionReq);
+        const cashTrx = await createWithdrawalTransactionService(createCashTransactionReq);
         const resp = new ResponseSuccess(
             201,
             "Created",
             {
                 id: cashTrx.id,
-                bankAccount: {
-                    accountId: cashTrx.bank_account.id,
+                bank_account: {
+                    account_id: cashTrx.bank_account.id,
                     profile: {
-                        profileId: cashTrx.bank_account.profile.id,
-                        fullName: cashTrx.bank_account.profile.full_name,
+                        profile_id: cashTrx.bank_account.profile.id,
+                        full_name: cashTrx.bank_account.profile.full_name,
                     },
-                    accountNumber: cashTrx.bank_account.account_number,
-                    bankAccountType: cashTrx.bank_account.bank_account_type,
+                    account_number: cashTrx.bank_account.account_number,
+                    bank_account_type: cashTrx.bank_account.bank_account_type,
                 },
-                transactionType: cashTrx.transaction_type,
+                transaction_type: cashTrx.transaction_type,
                 amount: cashTrx.amount,
-                transactionDate: cashTrx.transaction_date,
+                transaction_date: cashTrx.transaction_date,
             }
         );
         return res.status(201).json(resp);
     } catch (e) {
-        if (e instanceof ResponseError) {
-            return res.status(e.status).json({
-                statusCode: e.status,
-                message: e.message,
-                error: e.error
-            });
-        } else {
-            return res.status(500).json({
-                statusCode: 500,
-                message: "Internal Server Error",
-                error: e.message
-            });
-        }
+        next(e);
     }
 }
 
-async function getAllCashTransactions(req, res) {
+async function getAllCashTransactions(req, res, next) {
     try {
         const { bank_acc_id } = req.params;
         const cashTrx = await getAllCashTransactionsService(bank_acc_id);
@@ -107,39 +82,27 @@ async function getAllCashTransactions(req, res) {
             "OK",
             cashTrx.map(trx => ({
                 id: trx.id,
-                bankAccount: {
-                    accountId: trx.bank_account.id,
+                bank_account: {
+                    account_id: trx.bank_account.id,
                     profile: {
-                        profileId: trx.bank_account.profile.id,
-                        fullName: trx.bank_account.profile.full_name,
+                        profile_id: trx.bank_account.profile.id,
+                        full_name: trx.bank_account.profile.full_name,
                     },
-                    accountNumber: trx.bank_account.account_number,
-                    bankAccountType: trx.bank_account.bank_account_type,
+                    account_number: trx.bank_account.account_number,
+                    bank_account_type: trx.bank_account.bank_account_type,
                 },
-                transactionType: trx.transaction_type,
+                transaction_type: trx.transaction_type,
                 amount: trx.amount,
-                transactionDate: trx.transaction_date,
+                transaction_date: trx.transaction_date,
             }))
         );
         return res.status(200).json(resp);
     } catch (e) {
-        if (e instanceof ResponseError) {
-            return res.status(e.status).json({
-                statusCode: e.status,
-                message: e.message,
-                error: e.error
-            });
-        } else {
-            return res.status(500).json({
-                statusCode: 500,
-                message: "Internal Server Error",
-                error: e.message
-            });
-        }
+        next(e);
     }
 }
 
-async function getCashTransactionById(req, res) {
+async function getCashTransactionById(req, res, next) {
     try {
         const { id } = req.params;
         const cashTrx = await getCashTransactionByIdService(id);
@@ -148,35 +111,23 @@ async function getCashTransactionById(req, res) {
             "OK",
             {
                 id: cashTrx.id,
-                bankAccount: {
-                    accountId: cashTrx.bank_account.id,
+                bank_account: {
+                    account_id: cashTrx.bank_account.id,
                     profile: {
-                        profileId: cashTrx.bank_account.profile.id,
-                        fullName: cashTrx.bank_account.profile.full_name,
+                        profile_id: cashTrx.bank_account.profile.id,
+                        full_name: cashTrx.bank_account.profile.full_name,
                     },
-                    accountNumber: cashTrx.bank_account.account_number,
-                    bankAccountType: cashTrx.bank_account.bank_account_type,
+                    account_number: cashTrx.bank_account.account_number,
+                    bank_account_type: cashTrx.bank_account.bank_account_type,
                 },
-                transactionType: cashTrx.transaction_type,
+                transaction_type: cashTrx.transaction_type,
                 amount: cashTrx.amount,
-                transactionDate: cashTrx.transaction_date,
+                transaction_date: cashTrx.transaction_date,
             }
         );
         return res.status(200).json(resp);
     } catch (e) {
-        if (e instanceof ResponseError) {
-            return res.status(e.status).json({
-                statusCode: e.status,
-                message: e.message,
-                error: e.error
-            });
-        } else {
-            return res.status(500).json({
-                statusCode: 500,
-                message: "Internal Server Error",
-                error: e.message
-            });
-        }
+        next(e);
     }
 }
 

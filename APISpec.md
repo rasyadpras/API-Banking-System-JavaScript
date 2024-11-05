@@ -21,16 +21,16 @@ Request:
 {
   "email": "string",
   "password": "string",
-  "fullName": "string",
+  "full_name": "string",
   "gender": "string",
-  "birthDate": "string",
-  "identityType": "string",
-  "identityNumber": "string",
+  "birth_date": "string",
+  "identity_type": "string",
+  "identity_number": "string",
   "address": "string",
   "city": "string",
   "province": "string",
   "country": "string",
-  "phoneNumber": "string"
+  "phone_number": "string"
 }
 ```
 

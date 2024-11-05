@@ -5,7 +5,7 @@ const router = express.Router();
 const authRoute = require("./auth-route");
 const profileRoute = require("./profile-route");
 const accRoute = require("./bank-account-route");
-const trxRoute = require("./transfer-route");
+const trxRoute = require("./transaction-route");
 const branchRoute = require("./branch-route");
 const cardRoute = require("./card-route");
 

@@ -45,7 +45,7 @@ async function registerService(registerReq) {
             roles: {
                 connect: { id: customerRole.id }
             },
-            profiles: {
+            profile: {
                 create: {
                     full_name,
                     gender: inputGender(gender),
@@ -92,11 +92,11 @@ async function loginService(loginReq) {
             expiresIn: process.env.JWT_EXPIRES_IN,
         }
     );
-    const data = prisma.users.findUnique({
+    const data = await prisma.users.findUnique({
         where: { email },
         select: {
             email: true,
-            roles: {select: {role: true}},
+            roles: { select: { role: true } },
         }
     });
 
@@ -106,32 +106,31 @@ async function loginService(loginReq) {
 async function addRoleService(id, addRoleReq) {
     const { role } = addRoleReq;
 
-    const user = await prisma.users.findUnique({ where: { id } });
+    const user = await prisma.users.findUnique({
+        where: { id },
+        include: { roles: { select: { role: true } } }
+    });
     if (!user) {
         throw new ResponseError(404, "Not Found", "User not found");
     }
 
     let addRole;
-    if (role.toLowerCase() === "admin") {
-        addRole = Roles.administrator;
-    } else if (role.toLowerCase() === "staff") {
-        addRole = Roles.officer;
-    } else {
-        throw new ResponseError(400, "Bad Request", "Value of role must be 'admin' or 'staff'");
+    if (role === "staff") {
+        addRole = await prisma.roles.findUnique({ where: { role: Roles.officer } });
+    } else if (role === "admin") {
+        addRole = await prisma.roles.findUnique({ where: { role: Roles.administrator } });
     }
 
-    const existRole = await prisma.roles.findUnique({ where: { role: addRole } });
-    if (!existRole) {
-        await prisma.roles.create({
-            data: { role: addRole }
-        });
+    const hasRole = user.roles.some(userRole => userRole.role === addRole.role);
+    if (hasRole) {
+        throw new ResponseError(409, "Conflict", "User already has the role");
     }
 
     await prisma.users.update({
         where: { id },
         data: {
             roles: {
-                connect: { id: role.id }
+                connect: { id: addRole.id }
             }
         }
     });
@@ -164,11 +163,12 @@ async function forgotPasswordService(id, forgotPasswordReq) {
         throw new ResponseError(404, "Not Found", "User not found");
     }
 
-    const hashPass = await bcrypt.hash(password, 10);
-    const match = await bcrypt.compare(hashPass, user.password);
+    const match = await bcrypt.compare(password, user.password);
     if (match) {
         throw new ResponseError(400, "Bad Request", "New password must be different from the current password");
     }
+
+    const hashPass = await bcrypt.hash(password, 10);
 
     return prisma.users.update({
         where: { id },
@@ -184,17 +184,17 @@ async function resetPasswordService(id, resetPasswordReq) {
         throw new ResponseError(404, "Not Found", "User not found");
     }
 
-    const hashOldPass = await bcrypt.hash(old_password, 10);
-    const match = await bcrypt.compare(hashOldPass, user.password);
+    const match = await bcrypt.compare(old_password, user.password);
     if (!match) {
         throw new ResponseError(400, "Bad Request", "Old password not match");
     }
 
-    const hashNewPass = await bcrypt.hash(new_password, 10);
-    const matchNew = await bcrypt.compare(hashNewPass, hashOldPass);
+    const matchNew = await bcrypt.compare(new_password, user.password);
     if (matchNew) {
         throw new ResponseError(400, "Bad Request", "New password must be different from the old password");
     }
+
+    const hashNewPass = await bcrypt.hash(new_password, 10);
 
     return prisma.users.update({
         where: { id },

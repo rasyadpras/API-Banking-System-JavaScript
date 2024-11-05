@@ -21,7 +21,7 @@ router.post("/register", validateRegister, register);
 router.post("/login", validateLogin, login);
 router.patch("/role/:id", validateAddRole, addRole);
 router.patch("/forgot-password/:id", validateForgotPassword, forgotPassword);
-router.patch("/reset-password/{id}", validateResetPassword, resetPassword);
+router.patch("/reset-password/:id", validateResetPassword, resetPassword);
 router.patch("/verify/:id", verifyAccount);
 router.patch("/unlock/:id", unlockAccount);
 

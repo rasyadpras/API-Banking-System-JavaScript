@@ -9,6 +9,6 @@ const { validateCreateBankAcc } = require("../validations/bank-account-validator
 
 router.post("/", validateCreateBankAcc, createBankAccount);
 router.get("/:id", getBankAccountById);
-router.put("/:id", deleteBankAccount);
+router.patch("/:id/close", deleteBankAccount);
 
 module.exports = router;

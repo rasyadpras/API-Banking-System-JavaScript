@@ -30,7 +30,7 @@ async function getAllBranchesService(region) {
     return prisma.bank_branches.findMany({
         where: payload,
         orderBy: {
-            id: "asc",
+            branch_code: "asc",
         },
         select: {
             id: true,

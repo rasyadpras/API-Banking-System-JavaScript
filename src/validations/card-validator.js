@@ -8,7 +8,7 @@ function validateCreateCard(req, res, next) {
         card_number: Joi.string().pattern(/^\d{16}$/).required(),
         principal: Joi.string().valid("visa", "mastercard", "gpn", "jcb", "union_pay", "american_express", "no_principal", "other").required(),
         expired_date: Joi.string().pattern(/^\d{2}-\d{2}$/).required(),
-        cvv: Joi.string().pattern(/^\d{4}$/).required(),
+        cvv: Joi.string().pattern(/^\d{3,4}$/).required(),
     });
     const { error } = schema.validate(req.body);
     if (error) {

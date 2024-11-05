@@ -36,7 +36,6 @@ async function initSuperAdmin() {
                 connect: roles.map(role => ({ id: role.id }))
             },
             status_account: AccountUserStatus.active,
-            is_verified: true,
         }
     });
 }

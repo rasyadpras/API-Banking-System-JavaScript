@@ -13,7 +13,7 @@ function validateRegister(req, res, next) {
         full_name: Joi.string().required(),
         gender: Joi.string().valid("male", "female").required(),
         birth_date: Joi.string().pattern(/^\d{4}-\d{2}-\d{2}$/).required(),
-        identity_type: Joi.string().valid("identity_card", "passport", "driver_license", "students_card", "other").required(),
+        identity_type: Joi.string().valid("ktp", "id card", "passport", "driver license", "student card", "other").required(),
         identity_number: Joi.string().required(),
         address: Joi.string().required(),
         city: Joi.string().required(),
@@ -30,7 +30,7 @@ function validateRegister(req, res, next) {
 
 function validateLogin(req, res, next) {
     const schema = Joi.object({
-        username: Joi.string().required(),
+        email: Joi.string().email({ tlds: { allow: false } }).required(),
         password: Joi.string().required(),
     });
     const { error } = schema.validate(req.body);
@@ -42,7 +42,7 @@ function validateLogin(req, res, next) {
 
 function validateAddRole(req, res, next) {
     const schema = Joi.object({
-        role: Joi.string().valid("admin", "officer").required(),
+        role: Joi.string().valid("admin", "staff").required(),
     });
     const { error } = schema.validate(req.body);
     if (error) {

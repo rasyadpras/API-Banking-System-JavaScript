@@ -5,15 +5,14 @@ const prisma = new PrismaClient();
 
 function generateBankAccountNumber(branchCode) {
     const date = new Date();
-    const monthYear = `${(date.getMonth() + 1).toString().padStart(2, "0")}${
-        date.getFullYear().toString().slice(-2)
-    }`;
+    const monthYear = `${(date.getMonth() + 1).toString().padStart(2, "0")}${date.getFullYear().toString().slice(-2)}`;
+
     const hashedMonthYear = Math.abs(
-        [...monthYear].reduce((hash, char) => (hash << 5) - hash + char.charCodeAt(0), 0) % 10000,
+        [...monthYear].reduce((hash, char) => (hash << 5) - hash + char.charCodeAt(0), 0) % 10000
     ).toString().padStart(4, "0");
 
-    const sequence = { count: 1 };
-    const sequenceNumber = (sequence.count++ % 1000).toString().padStart(3, "0");
+    const day = date.getDate().toString().padStart(2, "0");
+    const sequenceNumber = (day + "001").slice(-3);
 
     return branchCode + hashedMonthYear + sequenceNumber;
 }
@@ -31,14 +30,27 @@ async function createBankAccountService(createBankAccReq) {
         throw new ResponseError(404, "Not Found", "Profile not found");
     }
 
-    return prisma.bank_accounts.create({
+    const bankAcc = await prisma.bank_accounts.create({
         data: {
             branch: { connect: { id: branch_id } },
             profile: { connect: { id: profile_id } },
-            account_number: generateBankAccountNumber(branch_id),
-            type: inputBankAccountType(type),
+            account_number: generateBankAccountNumber(branch.branch_code),
+            bank_account_type: inputBankAccountType(type),
             balance: 0,
             status_bank_account: BankAccountStatus.active,
+        },
+    });
+
+    return prisma.bank_accounts.findUnique({
+        where: { id: bankAcc.id },
+        include: {
+            branch: true,
+            profile: {
+                include: {
+                    user: true,
+                },
+            },
+            cards: true,
         },
     });
 }
@@ -93,7 +105,7 @@ function getBankAccountByIdService(id) {
                     card_number: true,
                     principal: true,
                     expired_date: true,
-                    status_card: true,
+                    card_status: true,
                 }
             },
             created_at: true,

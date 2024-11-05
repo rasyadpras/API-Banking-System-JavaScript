@@ -6,9 +6,8 @@ const {
 const CreateBranchRequest = require("../dto/create-branch");
 const UpdateBranchRequest = require("../dto/update-branch");
 const ResponseSuccess = require("../responses/response-success");
-const ResponseError = require("../responses/response-error");
 
-async function createBranch(req, res) {
+async function createBranch(req, res, next) {
     try {
         const createBranchReq = new CreateBranchRequest(
             req.body.branch_code,
@@ -22,34 +21,22 @@ async function createBranch(req, res) {
             201,
             "Created",
             {
-                branchId: branch.id,
+                branch_id: branch.id,
                 code: branch.branch_code,
-                branchName: branch.branch_name,
+                branch_name: branch.branch_name,
                 region: branch.region,
                 address: branch.address,
-                createdAt: branch.created_at,
-                updatedAt: branch.updated_at
+                created_at: branch.created_at,
+                updated_at: branch.updated_at
             }
         );
         return res.status(201).json(resp);
     } catch (e) {
-        if (e instanceof ResponseError) {
-            return res.status(e.status).json({
-                statusCode: e.status,
-                message: e.message,
-                error: e.error
-            });
-        } else {
-            return res.status(500).json({
-                statusCode: 500,
-                message: "Internal Server Error",
-                error: e.message
-            });
-        }
+        next(e);
     }
 }
 
-async function getAllBranches(req, res) {
+async function getAllBranches(req, res, next) {
     try {
         const { region } = req.query;
         const branches = await getAllBranchesService(region);
@@ -57,34 +44,22 @@ async function getAllBranches(req, res) {
             200,
             "OK",
             branches.map(branch => ({
-                branchId: branch.id,
+                branch_id: branch.id,
                 code: branch.branch_code,
-                branchName: branch.branch_name,
+                branch_name: branch.branch_name,
                 region: branch.region,
                 address: branch.address,
-                createdAt: branch.created_at,
-                updatedAt: branch.updated_at
+                created_at: branch.created_at,
+                updated_at: branch.updated_at
             }))
         );
         return res.status(200).json(resp);
     } catch (e) {
-        if (e instanceof ResponseError) {
-            return res.status(e.status).json({
-                statusCode: e.status,
-                message: e.message,
-                error: e.error
-            });
-        } else {
-            return res.status(500).json({
-                statusCode: 500,
-                message: "Internal Server Error",
-                error: e.message
-            });
-        }
+        next(e);
     }
 }
 
-async function updateBranch(req, res) {
+async function updateBranch(req, res, next) {
     try {
         const { id } = req.params;
         const updateBranchReq = new UpdateBranchRequest(
@@ -97,30 +72,18 @@ async function updateBranch(req, res) {
             200,
             "OK",
             {
-                branchId: branch.id,
+                branch_id: branch.id,
                 code: branch.branch_code,
-                branchName: branch.branch_name,
+                branch_name: branch.branch_name,
                 region: branch.region,
                 address: branch.address,
-                createdAt: branch.created_at,
-                updatedAt: branch.updated_at
+                created_at: branch.created_at,
+                updated_at: branch.updated_at
             }
         );
         return res.status(200).json(resp);
     } catch (e) {
-        if (e instanceof ResponseError) {
-            return res.status(e.status).json({
-                statusCode: e.status,
-                message: e.message,
-                error: e.error
-            });
-        } else {
-            return res.status(500).json({
-                statusCode: 500,
-                message: "Internal Server Error",
-                error: e.message
-            });
-        }
+        next(e);
     }
 }
 

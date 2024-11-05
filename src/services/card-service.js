@@ -1,4 +1,4 @@
-const { PrismaClient, CardStatus } = require("@prisma/client");
+const { PrismaClient, CardStatus, BankAccountStatus } = require("@prisma/client");
 const ResponseError = require("../responses/response-error");
 const { inputCardType, inputCardPrincipal } = require("../utils/input-enum");
 const { convertToExpiryDate, formatCardNumber } = require("../utils/converter");
@@ -11,8 +11,11 @@ async function addCardService(addCardReq) {
     if (!bankAccount) {
         throw new ResponseError(404, "Not Found", "Bank account not found");
     }
+    if (bankAccount.status_bank_account === BankAccountStatus.closed) {
+        throw new ResponseError(400, "Bad Request", "This bank account is closed");
+    }
 
-    return prisma.cards.create({
+    const card = await prisma.cards.create({
         data: {
             bank_account: { connect: { id: bank_account_id } },
             card_type: inputCardType(card_type),
@@ -21,6 +24,17 @@ async function addCardService(addCardReq) {
             expired_date: convertToExpiryDate(expired_date),
             cvv,
         },
+    });
+
+    return prisma.cards.findUnique({
+        where: { id: card.id },
+        include: {
+            bank_account: {
+                include: {
+                    profile: true,
+                }
+            }
+        }
     });
 }
 
@@ -54,9 +68,9 @@ async function getCardByIdService(id) {
             principal: true,
             expired_date: true,
             cvv: true,
-            status_card: true,
+            card_status: true,
             active_date: true,
-            created_at: true,
+            updated_at: true,
         }
     });
 
@@ -66,23 +80,23 @@ async function getCardByIdService(id) {
     return card;
 }
 
-function unblockCardService(id) {
-    const card = prisma.cards.findUnique({ where: { id } });
+async function unblockCardService(id) {
+    const card = await prisma.cards.findUnique({ where: { id } });
     if (!card) {
         throw new ResponseError(404, "Not Found", "Card not found");
     }
 
-    if (card.status_card === CardStatus.active) {
+    if (card.card_status === CardStatus.active) {
         throw new ResponseError(400, "Bad Request", "Card is already active");
     }
 
-    if (card.status_card === CardStatus.expired) {
+    if (card.card_status === CardStatus.expired) {
         throw new ResponseError(400, "Bad Request", "Your card is expired");
     }
 
     return prisma.cards.update({
         where: { id },
-        data: { status_card: CardStatus.active }
+        data: { card_status: CardStatus.active }
     });
 }
 

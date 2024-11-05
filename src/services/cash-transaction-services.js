@@ -18,12 +18,23 @@ async function createDepositTransactionService(createCashTransactionReq) {
         data: { balance: account.balance + amount }
     });
 
-    return prisma.cash_transactions.create({
+    const cashTrx = await prisma.cash_transactions.create({
         data: {
             bank_account: { connect: { account_number } },
-            type: TransactionCashType.deposit,
+            transaction_type: TransactionCashType.deposit,
             amount,
         },
+    });
+
+    return prisma.cash_transactions.findUnique({
+        where: { id: cashTrx.id },
+        include: {
+            bank_account: {
+                include: {
+                    profile: true,
+                }
+            }
+        }
     });
 }
 
@@ -46,12 +57,23 @@ async function createWithdrawalTransactionService(createCashTransactionReq) {
         data: { balance: account.balance - amount }
     });
 
-    return prisma.cash_transactions.create({
+    const cashTrx = await prisma.cash_transactions.create({
         data: {
             bank_account: { connect: { account_number } },
-            type: TransactionCashType.withdrawal,
+            transaction_type: TransactionCashType.withdrawal,
             amount,
         },
+    });
+
+    return prisma.cash_transactions.findUnique({
+        where: { id: cashTrx.id },
+        include: {
+            bank_account: {
+                include: {
+                    profile: true,
+                }
+            }
+        }
     });
 }
 
@@ -91,7 +113,7 @@ async function getAllCashTransactionsService(bank_acc_id) {
             bank_account_id: bank_acc_id,
         },
         orderBy: {
-            id: "asc",
+            transaction_date: "asc",
         },
         select: {
             id: true,

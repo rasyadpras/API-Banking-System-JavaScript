@@ -5,7 +5,7 @@ function validateCreateTransfer(req, res, next) {
     const schema = Joi.object({
         source_account_number: Joi.string().pattern(/^\d{10}$/).required(),
         destination_account_number: Joi.string().pattern(/^\d{10}$/).required(),
-        amount: Joi.number().precision(2).required(),
+        amount: Joi.number().min(50000).precision(2).required(),
     });
     const { error } = schema.validate(req.body);
     if (error) {

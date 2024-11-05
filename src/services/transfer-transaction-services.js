@@ -22,6 +22,10 @@ async function createTransferTransactionService(createTransferTransactionReq) {
         throw new ResponseError(400, "Bad Request", "Insufficient balance");
     }
 
+    if (source_account_number === destination_account_number) {
+        throw new ResponseError(400, "Bad Request", "Cannot transfer to the same account");
+    }
+
     await prisma.bank_accounts.update({
         where: { account_number: source_account_number },
         data: { balance: sourceAccount.balance - amount }
@@ -31,13 +35,29 @@ async function createTransferTransactionService(createTransferTransactionReq) {
         data: { balance: destinationAccount.balance + amount }
     });
 
-    return prisma.transfer_transactions.create({
+    const trfTrx = await prisma.transfer_transactions.create({
         data: {
-            source_account: { connect: { account_number: source_account_number } },
-            destination_account: { connect: { account_number: destination_account_number } },
+            from_account: { connect: { account_number: source_account_number } },
+            to_account: { connect: { account_number: destination_account_number } },
             amount,
         },
     });
+
+    return prisma.transfer_transactions.findUnique({
+        where: { id: trfTrx.id },
+        include: {
+            from_account: {
+                include: {
+                    profile: true,
+                }
+            },
+            to_account: {
+                include: {
+                    profile: true,
+                }
+            }
+        }
+    })
 }
 
 async function getTransferTransactionByIdService(id) {
@@ -91,7 +111,7 @@ async function getAllTransferTransactionsService(bank_acc_id) {
             ],
         },
         orderBy: {
-            id: "asc",
+            transaction_date: "asc",
         },
         select: {
             id: true,
@@ -138,7 +158,7 @@ async function getTransferTransactionsBySenderService(bank_acc_id) {
             source_account_id: bank_acc_id,
         },
         orderBy: {
-            id: "asc",
+            transaction_date: "asc",
         },
         select: {
             id: true,
@@ -185,7 +205,7 @@ async function getTransferTransactionsByReceiverService(bank_acc_id) {
             destination_account_id: bank_acc_id,
         },
         orderBy: {
-            id: "asc",
+            transaction_date: "asc",
         },
         select: {
             id: true,

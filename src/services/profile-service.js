@@ -14,7 +14,7 @@ async function getAllProfilesService(city) {
     return prisma.profiles.findMany({
         where: payload,
         orderBy: {
-            id: "asc",
+            full_name: "asc",
         },
         select: {
             id: true,
@@ -59,7 +59,7 @@ async function getAllProfilesService(city) {
                             card_type: true,
                             card_number: true,
                             principal: true,
-                            status_card: true,
+                            card_status: true,
                         }
                     },
                     created_at: true,
@@ -118,7 +118,7 @@ async function getProfileByIdService(id) {
                             card_type: true,
                             card_number: true,
                             principal: true,
-                            status_card: true,
+                            card_status: true,
                         }
                     },
                     created_at: true,
@@ -216,7 +216,7 @@ async function updateProfileService(id, updateProfileReq) {
                             card_type: true,
                             card_number: true,
                             principal: true,
-                            status_card: true,
+                            card_status: true,
                         }
                     },
                     created_at: true,

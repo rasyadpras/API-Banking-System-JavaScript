@@ -7,9 +7,8 @@ const {
 } = require("../services/transfer-transaction-services");
 const CreateTransferTransactionRequest = require("../dto/create-transfer-transaction");
 const ResponseSuccess = require("../responses/response-success");
-const ResponseError = require("../responses/response-error");
 
-async function createTransfer(req, res) {
+async function createTransfer(req, res, next) {
     try {
         const createTransferTransactionReq = new CreateTransferTransactionRequest(
             req.body.source_account_number,
@@ -23,47 +22,35 @@ async function createTransfer(req, res) {
             "Created",
             {
                 id: transferTrx.id,
-                sourceAccount: {
-                    accountId: transferTrx.source_account.id,
+                source_account: {
+                    account_id: transferTrx.from_account.id,
                     profile: {
-                        profileId: transferTrx.source_account.profile.id,
-                        fullName: transferTrx.source_account.profile.full_name,
+                        profile_id: transferTrx.from_account.profile.id,
+                        full_name: transferTrx.from_account.profile.full_name,
                     },
-                    accountNumber: transferTrx.source_account.account_number,
-                    bankAccountType: transferTrx.source_account.bank_account_type,
+                    account_number: transferTrx.from_account.account_number,
+                    bank_account_type: transferTrx.from_account.bank_account_type,
                 },
-                destinationAccount: {
-                    accountId: transferTrx.destination_account.id,
+                destination_account: {
+                    account_id: transferTrx.to_account.id,
                     profile: {
-                        profileId: transferTrx.destination_account.profile.id,
-                        fullName: transferTrx.destination_account.profile.full_name,
+                        profile_id: transferTrx.to_account.profile.id,
+                        full_name: transferTrx.to_account.profile.full_name,
                     },
-                    accountNumber: transferTrx.destination_account.account_number,
-                    bankAccountType: transferTrx.destination_account.bank_account_type,
+                    account_number: transferTrx.to_account.account_number,
+                    bank_account_type: transferTrx.to_account.bank_account_type,
                 },
                 amount: transferTrx.amount,
-                transactionDate: transferTrx.transaction_date,
+                transaction_date: transferTrx.transaction_date,
             }
         );
         return res.status(201).json(resp);
     } catch (e) {
-        if (e instanceof ResponseError) {
-            return res.status(e.status).json({
-                statusCode: e.status,
-                message: e.message,
-                error: e.error
-            });
-        } else {
-            return res.status(500).json({
-                statusCode: 500,
-                message: "Internal Server Error",
-                error: e.message
-            });
-        }
+        next(e);
     }
 }
 
-async function getTransferTransactionById(req, res) {
+async function getTransferTransactionById(req, res, next) {
     try {
         const { id } = req.params;
         const transferTrx = await getTransferTransactionByIdService(id);
@@ -72,47 +59,35 @@ async function getTransferTransactionById(req, res) {
             "OK",
             {
                 id: transferTrx.id,
-                sourceAccount: {
-                    accountId: transferTrx.source_account.id,
+                source_account: {
+                    account_id: transferTrx.from_account.id,
                     profile: {
-                        profileId: transferTrx.source_account.profile.id,
-                        fullName: transferTrx.source_account.profile.full_name,
+                        profile_id: transferTrx.from_account.profile.id,
+                        full_name: transferTrx.from_account.profile.full_name,
                     },
-                    accountNumber: transferTrx.source_account.account_number,
-                    bankAccountType: transferTrx.source_account.bank_account_type,
+                    account_number: transferTrx.from_account.account_number,
+                    bank_account_type: transferTrx.from_account.bank_account_type,
                 },
-                destinationAccount: {
-                    accountId: transferTrx.destination_account.id,
+                destination_account: {
+                    account_id: transferTrx.to_account.id,
                     profile: {
-                        profileId: transferTrx.destination_account.profile.id,
-                        fullName: transferTrx.destination_account.profile.full_name,
+                        profile_id: transferTrx.to_account.profile.id,
+                        full_name: transferTrx.to_account.profile.full_name,
                     },
-                    accountNumber: transferTrx.destination_account.account_number,
-                    bankAccountType: transferTrx.destination_account.bank_account_type,
+                    account_number: transferTrx.to_account.account_number,
+                    bank_account_type: transferTrx.to_account.bank_account_type,
                 },
                 amount: transferTrx.amount,
-                transactionDate: transferTrx.transaction_date,
+                transaction_date: transferTrx.transaction_date,
             }
         );
         return res.status(200).json(resp);
     } catch (e) {
-        if (e instanceof ResponseError) {
-            return res.status(e.status).json({
-                statusCode: e.status,
-                message: e.message,
-                error: e.error
-            });
-        } else {
-            return res.status(500).json({
-                statusCode: 500,
-                message: "Internal Server Error",
-                error: e.message
-            });
-        }
+        next(e);
     }
 }
 
-async function getAllTransferTransactions(req, res) {
+async function getAllTransferTransactions(req, res, next) {
     try {
         const { bankAccId } = req.params;
         const transferTrx = await getAllTransferTransactionsService(bankAccId);
@@ -121,47 +96,35 @@ async function getAllTransferTransactions(req, res) {
             "OK",
             transferTrx.map(trx => ({
                 id: trx.id,
-                sourceAccount: {
-                    accountId: trx.source_account.id,
+                source_account: {
+                    account_id: trx.from_account.id,
                     profile: {
-                        profileId: trx.source_account.profile.id,
-                        fullName: trx.source_account.profile.full_name,
+                        profile_id: trx.from_account.profile.id,
+                        full_name: trx.from_account.profile.full_name,
                     },
-                    accountNumber: trx.source_account.account_number,
-                    bankAccountType: trx.source_account.bank_account_type,
+                    account_number: trx.from_account.account_number,
+                    bank_account_type: trx.from_account.bank_account_type,
                 },
-                destinationAccount: {
-                    accountId: trx.destination_account.id,
+                destination_account: {
+                    account_id: trx.to_account.id,
                     profile: {
-                        profileId: trx.destination_account.profile.id,
-                        fullName: trx.destination_account.profile.full_name,
+                        profile_id: trx.to_account.profile.id,
+                        full_name: trx.to_account.profile.full_name,
                     },
-                    accountNumber: trx.destination_account.account_number,
-                    bankAccountType: trx.destination_account.bank_account_type,
+                    account_number: trx.to_account.account_number,
+                    bank_account_type: trx.to_account.bank_account_type,
                 },
                 amount: trx.amount,
-                transactionDate: trx.transaction_date,
+                transaction_date: trx.transaction_date,
             }))
         );
         return res.status(200).json(resp);
     } catch (e) {
-        if (e instanceof ResponseError) {
-            return res.status(e.status).json({
-                statusCode: e.status,
-                message: e.message,
-                error: e.error
-            });
-        } else {
-            return res.status(500).json({
-                statusCode: 500,
-                message: "Internal Server Error",
-                error: e.message
-            });
-        }
+        next(e);
     }
 }
 
-async function getTransferTransactionsBySender(req, res) {
+async function getTransferTransactionsBySender(req, res, next) {
     try {
         const { bankAccId } = req.params;
         const transferTrx = await getTransferTransactionsBySenderService(bankAccId);
@@ -170,47 +133,35 @@ async function getTransferTransactionsBySender(req, res) {
             "OK",
             transferTrx.map(trx => ({
                 id: trx.id,
-                sourceAccount: {
-                    accountId: trx.source_account.id,
+                source_account: {
+                    account_id: trx.from_account.id,
                     profile: {
-                        profileId: trx.source_account.profile.id,
-                        fullName: trx.source_account.profile.full_name,
+                        profile_id: trx.from_account.profile.id,
+                        full_name: trx.from_account.profile.full_name,
                     },
-                    accountNumber: trx.source_account.account_number,
-                    bankAccountType: trx.source_account.bank_account_type,
+                    account_number: trx.from_account.account_number,
+                    bank_account_type: trx.from_account.bank_account_type,
                 },
-                destinationAccount: {
-                    accountId: trx.destination_account.id,
+                destination_account: {
+                    account_id: trx.to_account.id,
                     profile: {
-                        profileId: trx.destination_account.profile.id,
-                        fullName: trx.destination_account.profile.full_name,
+                        profile_id: trx.to_account.profile.id,
+                        full_name: trx.to_account.profile.full_name,
                     },
-                    accountNumber: trx.destination_account.account_number,
-                    bankAccountType: trx.destination_account.bank_account_type,
+                    account_number: trx.to_account.account_number,
+                    bank_account_type: trx.to_account.bank_account_type,
                 },
                 amount: trx.amount,
-                transactionDate: trx.transaction_date,
+                transaction_date: trx.transaction_date,
             }))
         );
         return res.status(200).json(resp);
     } catch (e) {
-        if (e instanceof ResponseError) {
-            return res.status(e.status).json({
-                statusCode: e.status,
-                message: e.message,
-                error: e.error
-            });
-        } else {
-            return res.status(500).json({
-                statusCode: 500,
-                message: "Internal Server Error",
-                error: e.message
-            });
-        }
+        next(e);
     }
 }
 
-async function getTransferTransactionsByReceiver(req, res) {
+async function getTransferTransactionsByReceiver(req, res, next) {
     try {
         const { bankAccId } = req.params;
         const transferTrx = await getTransferTransactionsByReceiverService(bankAccId);
@@ -218,44 +169,32 @@ async function getTransferTransactionsByReceiver(req, res) {
             200,
             "OK",
             transferTrx.map(trx => ({
-                id: trx.id,
-                sourceAccount: {
-                    accountId: trx.source_account.id,
+                iid: trx.id,
+                source_account: {
+                    account_id: trx.from_account.id,
                     profile: {
-                        profileId: trx.source_account.profile.id,
-                        fullName: trx.source_account.profile.full_name,
+                        profile_id: trx.from_account.profile.id,
+                        full_name: trx.from_account.profile.full_name,
                     },
-                    accountNumber: trx.source_account.account_number,
-                    bankAccountType: trx.source_account.bank_account_type,
+                    account_number: trx.from_account.account_number,
+                    bank_account_type: trx.from_account.bank_account_type,
                 },
-                destinationAccount: {
-                    accountId: trx.destination_account.id,
+                destination_account: {
+                    account_id: trx.to_account.id,
                     profile: {
-                        profileId: trx.destination_account.profile.id,
-                        fullName: trx.destination_account.profile.full_name,
+                        profile_id: trx.to_account.profile.id,
+                        full_name: trx.to_account.profile.full_name,
                     },
-                    accountNumber: trx.destination_account.account_number,
-                    bankAccountType: trx.destination_account.bank_account_type,
+                    account_number: trx.to_account.account_number,
+                    bank_account_type: trx.to_account.bank_account_type,
                 },
                 amount: trx.amount,
-                transactionDate: trx.transaction_date,
+                transaction_date: trx.transaction_date,
             }))
         );
         return res.status(200).json(resp);
     } catch (e) {
-        if (e instanceof ResponseError) {
-            return res.status(e.status).json({
-                statusCode: e.status,
-                message: e.message,
-                error: e.error
-            });
-        } else {
-            return res.status(500).json({
-                statusCode: 500,
-                message: "Internal Server Error",
-                error: e.message
-            });
-        }
+        next(e);
     }
 }
 

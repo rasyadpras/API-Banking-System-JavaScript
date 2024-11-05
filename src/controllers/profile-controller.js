@@ -5,9 +5,8 @@ const {
 } = require("../services/profile-service");
 const UpdateProfileRequest = require("../dto/update-profile");
 const ResponseSuccess = require("../responses/response-success");
-const ResponseError = require("../responses/response-error");
 
-async function getAllProfiles(req, res) {
+async function getAllProfiles(req, res, next) {
     try {
         const { city } = req.query;
         const profiles = await getAllProfilesService(city);
@@ -15,70 +14,58 @@ async function getAllProfiles(req, res) {
             200,
             "OK",
             profiles.map(profile => ({
-                profileId: profile.id,
-                fullName: profile.full_name,
+                profile_id: profile.id,
+                full_name: profile.full_name,
                 gender: profile.gender,
-                birthDate: profile.birth_date,
-                identityType: profile.identity_type,
-                identityNumber: profile.identity_number,
+                birth_date: profile.birth_date,
+                identity_type: profile.identity_type,
+                identity_number: profile.identity_number,
                 address: profile.address,
                 city: profile.city,
                 province: profile.province,
                 country: profile.country,
-                phoneNumber: profile.phone_number,
+                phone_number: profile.phone_number,
                 user: {
-                    userId: profile.user.id,
+                    user_id: profile.user.id,
                     email: profile.user.email,
-                    accountUserStatus: profile.user.status_account,
+                    account_user_status: profile.user.status_account,
                     roles: profile.user.roles.map(role => role.role),
-                    createdAt: profile.user.created_at,
-                    updatedAt: profile.user.updated_at,
+                    created_at: profile.user.created_at,
+                    updated_at: profile.user.updated_at,
                 },
-                bankAccounts: profile.bank_accounts.map(bankAccount => ({
-                    accountId: bankAccount.id,
+                bank_accounts: profile.bank_accounts.map(bankAccount => ({
+                    account_id: bankAccount.id,
                     branch: {
-                        branchId: bankAccount.branch.id,
+                        branch_id: bankAccount.branch.id,
                         code: bankAccount.branch.branch_code,
-                        branchName: bankAccount.branch.branch_name,
+                        branch_name: bankAccount.branch.branch_name,
                         region: bankAccount.branch.region,
                         address: bankAccount.branch.address,
                     },
-                    accountNumber: bankAccount.account_number,
-                    bankAccountType: bankAccount.bank_account_type,
-                    bankAccountStatus: bankAccount.status_bank_account,
+                    account_number: bankAccount.account_number,
+                    bank_account_type: bankAccount.bank_account_type,
+                    bank_account_status: bankAccount.status_bank_account,
                     cards: bankAccount.cards.map(card => ({
-                        cardId: card.id,
-                        cardType: card.card_type,
-                        cardNumber: card.card_number,
+                        card_id: card.id,
+                        card_type: card.card_type,
+                        card_number: card.card_number,
                         principal: card.principal,
-                        cardStatus: card.card_status,
+                        card_status: card.card_status,
                     })),
-                    createdAt: bankAccount.created_at,
-                    updatedAt: bankAccount.updated_at,
+                    created_at: bankAccount.created_at,
+                    updated_at: bankAccount.updated_at,
                 })),
-                createdAt: profile.created_at,
-                updatedAt: profile.updated_at,
+                created_at: profile.created_at,
+                updated_at: profile.updated_at,
             }))
         );
         return res.status(200).json(resp);
     } catch (e) {
-        if (e instanceof ResponseError) {
-            return res.status(e.status).json({
-                statusCode: e.status,
-                message: e.message,
-                error: e.error
-            });
-        } else {
-            return res.status(500).json({
-                statusCode: 500,
-                message: "Internal Server Error",
-                error: e.message
-            });
-        }
+        next(e);
     }
 }
 
-async function getProfileById(req, res) {
+async function getProfileById(req, res, next) {
     try {
         const { id } = req.params;
         const profile = await getProfileByIdService(id);
@@ -86,70 +73,58 @@ async function getProfileById(req, res) {
             200,
             "OK",
             {
-                profileId: profile.id,
-                fullName: profile.full_name,
+                profile_id: profile.id,
+                full_name: profile.full_name,
                 gender: profile.gender,
-                birthDate: profile.birth_date,
-                identityType: profile.identity_type,
-                identityNumber: profile.identity_number,
+                birth_date: profile.birth_date,
+                identity_type: profile.identity_type,
+                identity_number: profile.identity_number,
                 address: profile.address,
                 city: profile.city,
                 province: profile.province,
                 country: profile.country,
-                phoneNumber: profile.phone_number,
+                phone_number: profile.phone_number,
                 user: {
-                    userId: profile.user.id,
+                    user_id: profile.user.id,
                     email: profile.user.email,
-                    accountUserStatus: profile.user.status_account,
+                    account_user_status: profile.user.status_account,
                     roles: profile.user.roles.map(role => role.role),
-                    createdAt: profile.user.created_at,
-                    updatedAt: profile.user.updated_at,
+                    created_at: profile.user.created_at,
+                    updated_at: profile.user.updated_at,
                 },
-                bankAccounts: profile.bank_accounts.map(bankAccount => ({
-                    accountId: bankAccount.id,
+                bank_accounts: profile.bank_accounts.map(bankAccount => ({
+                    account_id: bankAccount.id,
                     branch: {
-                        branchId: bankAccount.branch.id,
+                        branch_id: bankAccount.branch.id,
                         code: bankAccount.branch.branch_code,
-                        branchName: bankAccount.branch.branch_name,
+                        branch_name: bankAccount.branch.branch_name,
                         region: bankAccount.branch.region,
                         address: bankAccount.branch.address,
                     },
-                    accountNumber: bankAccount.account_number,
-                    bankAccountType: bankAccount.bank_account_type,
-                    bankAccountStatus: bankAccount.status_bank_account,
+                    account_number: bankAccount.account_number,
+                    bank_account_type: bankAccount.bank_account_type,
+                    bank_account_status: bankAccount.status_bank_account,
                     cards: bankAccount.cards.map(card => ({
-                        cardId: card.id,
-                        cardType: card.card_type,
-                        cardNumber: card.card_number,
+                        card_id: card.id,
+                        card_type: card.card_type,
+                        card_number: card.card_number,
                         principal: card.principal,
-                        cardStatus: card.card_status,
+                        card_status: card.card_status,
                     })),
-                    createdAt: bankAccount.created_at,
-                    updatedAt: bankAccount.updated_at,
+                    created_at: bankAccount.created_at,
+                    updated_at: bankAccount.updated_at,
                 })),
-                createdAt: profile.created_at,
-                updatedAt: profile.updated_at,
+                created_at: profile.created_at,
+                updated_at: profile.updated_at,
             }
         );
         return res.status(200).json(resp);
     } catch (e) {
-        if (e instanceof ResponseError) {
-            return res.status(e.status).json({
-                statusCode: e.status,
-                message: e.message,
-                error: e.error
-            });
-        } else {
-            return res.status(500).json({
-                statusCode: 500,
-                message: "Internal Server Error",
-                error: e.message
-            });
-        }
+        next(e);
     }
 }
 
-async function updateProfile(req, res) {
+async function updateProfile(req, res, next) {
     try {
         const { id } = req.params;
         const updateProfileReq = new UpdateProfileRequest(
@@ -170,66 +145,54 @@ async function updateProfile(req, res) {
             200,
             "OK",
             {
-                profileId: profile.id,
-                fullName: profile.full_name,
+                profile_id: profile.id,
+                full_name: profile.full_name,
                 gender: profile.gender,
-                birthDate: profile.birth_date,
-                identityType: profile.identity_type,
-                identityNumber: profile.identity_number,
+                birth_date: profile.birth_date,
+                identity_type: profile.identity_type,
+                identity_number: profile.identity_number,
                 address: profile.address,
                 city: profile.city,
                 province: profile.province,
                 country: profile.country,
-                phoneNumber: profile.phone_number,
+                phone_number: profile.phone_number,
                 user: {
-                    userId: profile.user.id,
+                    user_id: profile.user.id,
                     email: profile.user.email,
-                    accountUserStatus: profile.user.status_account,
+                    account_user_status: profile.user.status_account,
                     roles: profile.user.roles.map(role => role.role),
-                    createdAt: profile.user.created_at,
-                    updatedAt: profile.user.updated_at,
+                    created_at: profile.user.created_at,
+                    updated_at: profile.user.updated_at,
                 },
-                bankAccounts: profile.bank_accounts.map(bankAccount => ({
-                    accountId: bankAccount.id,
+                bank_accounts: profile.bank_accounts.map(bankAccount => ({
+                    account_id: bankAccount.id,
                     branch: {
-                        branchId: bankAccount.branch.id,
+                        branch_id: bankAccount.branch.id,
                         code: bankAccount.branch.branch_code,
-                        branchName: bankAccount.branch.branch_name,
+                        branch_name: bankAccount.branch.branch_name,
                         region: bankAccount.branch.region,
                         address: bankAccount.branch.address,
                     },
-                    accountNumber: bankAccount.account_number,
-                    bankAccountType: bankAccount.bank_account_type,
-                    bankAccountStatus: bankAccount.status_bank_account,
+                    account_number: bankAccount.account_number,
+                    bank_account_type: bankAccount.bank_account_type,
+                    bank_account_status: bankAccount.status_bank_account,
                     cards: bankAccount.cards.map(card => ({
-                        cardId: card.id,
-                        cardType: card.card_type,
-                        cardNumber: card.card_number,
+                        card_id: card.id,
+                        card_type: card.card_type,
+                        card_number: card.card_number,
                         principal: card.principal,
-                        cardStatus: card.card_status,
+                        card_status: card.card_status,
                     })),
-                    createdAt: bankAccount.created_at,
-                    updatedAt: bankAccount.updated_at,
+                    created_at: bankAccount.created_at,
+                    updated_at: bankAccount.updated_at,
                 })),
-                createdAt: profile.created_at,
-                updatedAt: profile.updated_at,
+                created_at: profile.created_at,
+                updated_at: profile.updated_at,
             }
         );
         return res.status(200).json(resp);
     } catch (e) {
-        if (e instanceof ResponseError) {
-            return res.status(e.status).json({
-                statusCode: e.status,
-                message: e.message,
-                error: e.error
-            });
-        } else {
-            return res.status(500).json({
-                statusCode: 500,
-                message: "Internal Server Error",
-                error: e.message
-            });
-        }
+        next(e);
     }
 }
 

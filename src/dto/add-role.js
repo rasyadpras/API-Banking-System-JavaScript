@@ -1,5 +1,5 @@
 class AddRole {
-    constructor(user_id, role) {
+    constructor(role) {
         this.role = role;
     }
 }

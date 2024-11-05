@@ -5,9 +5,8 @@ const {
 } = require("../services/card-service");
 const AddCardRequest = require("../dto/add-card");
 const ResponseSuccess = require("../responses/response-success");
-const ResponseError = require("../responses/response-error");
 
-async function addCard(req, res) {
+async function addCard(req, res, next) {
     try {
         const addCardReq = new AddCardRequest(
             req.body.bank_account_id,
@@ -23,52 +22,40 @@ async function addCard(req, res) {
             201,
             "Created",
             {
-                cardId: card.id,
-                bankAccount: {
-                    bankAccountId: card.bank_account.id,
+                id: card.id,
+                bank_account: {
+                    bank_account_id: card.bank_account.id,
                     profile: {
-                        profileId: card.bank_account.profile.id,
-                        fullName: card.bank_account.profile.full_name,
+                        profile_id: card.bank_account.profile.id,
+                        full_name: card.bank_account.profile.full_name,
                         gender: card.bank_account.profile.gender,
-                        birthDate: card.bank_account.profile.birth_date,
-                        identityType: card.bank_account.profile.identity_type,
-                        identityNumber: card.bank_account.profile.identity_number,
+                        birth_date: card.bank_account.profile.birth_date,
+                        identity_type: card.bank_account.profile.identity_type,
+                        identity_number: card.bank_account.profile.identity_number,
                     },
-                    accountNumber: card.bank_account.account_number,
-                    bankAccountType: card.bank_account.bank_account_type,
-                    bankAccountStatus: card.bank_account.status_bank_account,
-                    createdAt: card.bank_account.created_at,
-                    updatedAt: card.bank_account.updated_at,
+                    account_number: card.bank_account.account_number,
+                    bank_account_type: card.bank_account.bank_account_type,
+                    bank_account_status: card.bank_account.status_bank_account,
+                    created_at: card.bank_account.created_at,
+                    updated_at: card.bank_account.updated_at,
                 },
-                cardType: card.card_type,
-                cardNumber: card.card_number,
+                card_type: card.card_type,
+                card_number: card.card_number,
                 principal: card.principal,
-                validThru: card.expired_date,
+                valid_thru: card.expired_date,
                 cvv: card.cvv,
-                cardStatus: card.status_card,
-                activeDate: card.active_date,
-                createdAt: card.created_at,
+                card_status: card.card_status,
+                active_date: card.active_date,
+                updated_at: card.updated_at,
             }
         );
         return res.status(201).json(resp);
     } catch (e) {
-        if (e instanceof ResponseError) {
-            return res.status(e.status).json({
-                statusCode: e.status,
-                message: e.message,
-                error: e.error
-            });
-        } else {
-            return res.status(500).json({
-                statusCode: 500,
-                message: "Internal Server Error",
-                error: e.message
-            });
-        }
+        next(e);
     }
 }
 
-async function getCardById(req, res) {
+async function getCardById(req, res, next) {
     try {
         const { id } = req.params;
         const card = await getCardByIdService(id);
@@ -76,52 +63,40 @@ async function getCardById(req, res) {
             200,
             "OK",
             {
-                cardId: card.id,
-                bankAccount: {
-                    bankAccountId: card.bank_account.id,
+                id: card.id,
+                bank_account: {
+                    bank_account_id: card.bank_account.id,
                     profile: {
-                        profileId: card.bank_account.profile.id,
-                        fullName: card.bank_account.profile.full_name,
+                        profile_id: card.bank_account.profile.id,
+                        full_name: card.bank_account.profile.full_name,
                         gender: card.bank_account.profile.gender,
-                        birthDate: card.bank_account.profile.birth_date,
-                        identityType: card.bank_account.profile.identity_type,
-                        identityNumber: card.bank_account.profile.identity_number,
+                        birth_date: card.bank_account.profile.birth_date,
+                        identity_type: card.bank_account.profile.identity_type,
+                        identity_number: card.bank_account.profile.identity_number,
                     },
-                    accountNumber: card.bank_account.account_number,
-                    bankAccountType: card.bank_account.bank_account_type,
-                    bankAccountStatus: card.bank_account.status_bank_account,
-                    createdAt: card.bank_account.created_at,
-                    updatedAt: card.bank_account.updated_at,
+                    account_number: card.bank_account.account_number,
+                    bank_account_type: card.bank_account.bank_account_type,
+                    bank_account_status: card.bank_account.status_bank_account,
+                    created_at: card.bank_account.created_at,
+                    updated_at: card.bank_account.updated_at,
                 },
-                cardType: card.card_type,
-                cardNumber: card.card_number,
+                card_type: card.card_type,
+                card_number: card.card_number,
                 principal: card.principal,
-                validThru: card.expired_date,
+                valid_thru: card.expired_date,
                 cvv: card.cvv,
-                cardStatus: card.status_card,
-                activeDate: card.active_date,
-                createdAt: card.created_at,
+                card_status: card.card_status,
+                active_date: card.active_date,
+                updated_at: card.updated_at,
             }
         );
         return res.status(200).json(resp);
     } catch (e) {
-        if (e instanceof ResponseError) {
-            return res.status(e.status).json({
-                statusCode: e.status,
-                message: e.message,
-                error: e.error
-            });
-        } else {
-            return res.status(500).json({
-                statusCode: 500,
-                message: "Internal Server Error",
-                error: e.message
-            });
-        }
+        next(e);
     }
 }
 
-async function unblockCard(req, res) {
+async function unblockCard(req, res, next) {
     try {
         const { id } = req.params;
         await unblockCardService(id);
@@ -132,19 +107,7 @@ async function unblockCard(req, res) {
         );
         return res.status(200).json(resp);
     } catch (e) {
-        if (e instanceof ResponseError) {
-            return res.status(e.status).json({
-                statusCode: e.status,
-                message: e.message,
-                error: e.error
-            });
-        } else {
-            return res.status(500).json({
-                statusCode: 500,
-                message: "Internal Server Error",
-                error: e.message
-            });
-        }
+        next(e);
     }
 }
 
